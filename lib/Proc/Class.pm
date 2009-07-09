@@ -1,10 +1,10 @@
 package Proc::Class;
 use Any::Moose;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use 5.008001;
 our @EXPORT = qw/test_script/;
 use Proc::Class::Status;
-use IPC::Open3 qw/open3/;
+use IPC::Open3 ();
 
 has stdin => (
     is => 'rw',
@@ -88,6 +88,12 @@ sub waitpid {
     return Proc::Class::Status->new(status => $?);
 }
 
+sub kill {
+    my ($self, $signal) = @_;
+    $signal ||= 'TERM';
+    kill $signal, $self->pid;
+}
+
 no Any::Moose;
 __PACKAGE__->meta->make_immutable;
 __END__
@@ -153,6 +159,10 @@ slurp() from child process' *STDERR.
 
 Waits for a particular child process to terminate and returns the pid of the deceased process.
 Returns Proc::Class::Status object.
+
+=item $script->kill('TERM');
+
+Send signal to the process.
 
 =back
 
